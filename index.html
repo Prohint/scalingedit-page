@@ -184,7 +184,11 @@ button { font: inherit; }
   grid-template-columns: repeat(5, minmax(0, 1fr));
   grid-template-rows: repeat(5, minmax(0, 1fr));
   gap: 0;
+  opacity: 0;
+  transition: opacity 180ms ease-out;
 }
+
+.hero.is-media-ready .hero-mosaic-grid { opacity: 1; }
 
 .hero-mosaic-grid img {
   display: block;
@@ -945,11 +949,11 @@ h3 { font-size: clamp(1.45rem, 2.3vw, 2rem); }
             <h2 id="video-title">Project video</h2>
           </div>
           <div class="project-video-shell">
-            <video id="project-video" class="project-video" controls playsinline preload="metadata" aria-describedby="project-video-status">
+            <video id="project-video" class="project-video" controls playsinline preload="metadata" src="project-video.mp4" aria-describedby="project-video-status">
               Your browser does not support HTML5 video.
             </video>
             <p id="project-video-status" class="project-video-status" role="status">Loading project video…</p>
-            <noscript>The project video requires JavaScript to assemble its self-hosted media file.</noscript>
+            <noscript>The project video is available as a standard MP4 file.</noscript>
           </div>
         </div>
       </section>
@@ -1021,54 +1025,17 @@ const siteConfig = {
 
 const projectVideo = document.querySelector("#project-video");
 const projectVideoStatus = document.querySelector("#project-video-status");
-const projectVideoParts = [
-  "project-video.part-001",
-  "project-video.part-002",
-  "project-video.part-003",
-];
-let projectVideoStarted = false;
-
-async function loadProjectVideo() {
-  if (!projectVideo || projectVideoStarted) return;
-  projectVideoStarted = true;
-
-  try {
-    const chunks = [];
-    for (let index = 0; index < projectVideoParts.length; index += 1) {
-      if (projectVideoStatus) {
-        projectVideoStatus.textContent = `Loading project video ${index + 1}/${projectVideoParts.length}…`;
-      }
-      const response = await fetch(new URL(projectVideoParts[index], window.location.href));
-      if (!response.ok) throw new Error(`Video part ${index + 1} failed (${response.status})`);
-      chunks.push(await response.arrayBuffer());
-    }
-
-    const videoUrl = URL.createObjectURL(new Blob(chunks, { type: "video/mp4" }));
-    projectVideo.src = videoUrl;
-    projectVideo.load();
-    projectVideo.addEventListener("loadedmetadata", () => {
-      if (projectVideoStatus) projectVideoStatus.hidden = true;
-    }, { once: true });
-  } catch (error) {
-    if (projectVideoStatus) {
-      projectVideoStatus.textContent = "The project video could not be loaded. Please refresh and try again.";
-    }
-    console.error(error);
-  }
-}
 
 if (projectVideo) {
-  const videoSection = document.querySelector("#video");
-  if ("IntersectionObserver" in window && videoSection) {
-    const videoObserver = new IntersectionObserver((entries, observer) => {
-      if (!entries.some((entry) => entry.isIntersecting)) return;
-      observer.disconnect();
-      loadProjectVideo();
-    }, { rootMargin: "240px 0px" });
-    videoObserver.observe(videoSection);
-  } else {
-    loadProjectVideo();
-  }
+  projectVideo.addEventListener("loadedmetadata", () => {
+    if (projectVideoStatus) projectVideoStatus.hidden = true;
+  }, { once: true });
+  projectVideo.addEventListener("error", () => {
+    if (projectVideoStatus) {
+      projectVideoStatus.hidden = false;
+      projectVideoStatus.textContent = "The project video could not be loaded. Please refresh and try again.";
+    }
+  });
 }
 
 const fallbackTitle = "ScalingEdit";
@@ -1093,6 +1060,25 @@ if (hero) {
     hero.classList.add("is-center-visible");
   } else {
     window.setTimeout(() => hero.classList.add("is-center-visible"), 120);
+  }
+
+  const revealHeroMedia = () => {
+    if ("IntersectionObserver" in window) {
+      const heroMediaObserver = new IntersectionObserver((entries, observer) => {
+        if (!entries.some((entry) => entry.isIntersecting)) return;
+        hero.classList.add("is-media-ready");
+        observer.disconnect();
+      });
+      heroMediaObserver.observe(hero);
+    } else {
+      hero.classList.add("is-media-ready");
+    }
+  };
+
+  if (document.readyState === "complete") {
+    window.requestAnimationFrame(revealHeroMedia);
+  } else {
+    window.addEventListener("load", () => window.requestAnimationFrame(revealHeroMedia), { once: true });
   }
 }
 
