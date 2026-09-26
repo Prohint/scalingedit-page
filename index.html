@@ -338,17 +338,18 @@ button { font: inherit; }
   position: absolute;
   left: 50%;
   top: 50%;
-  color: #4b38ff;
+  color: var(--title-color, #4b38ff);
   opacity: 0;
-  text-shadow: 0 5px 34px rgb(75 56 255 / 26%), 0 5px 28px rgb(0 0 0 / 42%);
+  -webkit-font-smoothing: antialiased;
+  text-rendering: geometricPrecision;
+  text-shadow: 0 2px 10px rgb(75 56 255 / 18%), 0 2px 5px rgb(0 0 0 / 34%);
   transform: translate(-50%, -50%) translate3d(var(--letter-x, 0), var(--letter-y, 0), 0) rotate(var(--letter-rotate, 0deg)) scale(var(--letter-scale, 1));
   transform-origin: center;
   will-change: transform;
 }
 
 .hero-title-letter--edit {
-  color: #ed168c;
-  text-shadow: 0 5px 34px rgb(237 22 140 / 25%), 0 5px 28px rgb(0 0 0 / 42%);
+  text-shadow: 0 2px 10px rgb(237 22 140 / 18%), 0 2px 5px rgb(0 0 0 / 34%);
 }
 
 .hero-title-stage.is-ready .hero-title-letter {
@@ -1141,6 +1142,23 @@ function buildHeroTitle() {
   joinedMeasure.className = "hero-title-measure hero-title-measure--joined";
   const letterLayer = document.createElement("span");
   letterLayer.className = "hero-title-letters";
+  const titleGradientStops = [
+    { position: 0, color: [72, 50, 255] },
+    { position: .52, color: [112, 39, 245] },
+    { position: .72, color: [201, 20, 179] },
+    { position: 1, color: [242, 10, 127] },
+  ];
+  const titleGradientColor = (position) => {
+    const upperIndex = titleGradientStops.findIndex((stop) => stop.position >= position);
+    const upper = titleGradientStops[Math.max(upperIndex, 1)];
+    const lower = titleGradientStops[Math.max(upperIndex - 1, 0)];
+    const span = upper.position - lower.position || 1;
+    const mix = Math.min(1, Math.max(0, (position - lower.position) / span));
+    const channels = lower.color.map((channel, channelIndex) => (
+      Math.round(channel + ((upper.color[channelIndex] - channel) * mix))
+    ));
+    return `rgb(${channels.join(" ")})`;
+  };
 
   [characters.slice(0, splitIndex), characters.slice(splitIndex)].forEach((lineCharacters, lineIndex) => {
     const line = document.createElement("span");
@@ -1162,6 +1180,7 @@ function buildHeroTitle() {
 
     const animatedLetter = document.createElement("span");
     animatedLetter.className = `hero-title-letter hero-title-letter--${index >= splitIndex ? "edit" : "scaling"}`;
+    animatedLetter.style.setProperty("--title-color", titleGradientColor(index / Math.max(characters.length - 1, 1)));
     if (index === 0 || index === splitIndex) animatedLetter.classList.add("hero-title-letter--initial");
     animatedLetter.textContent = character;
     letterLayer.append(animatedLetter);
