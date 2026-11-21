@@ -3,9 +3,9 @@
   <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <meta name="description" content="ScalingEdit: Scaling Real-World 3D Object Editing with Self-Supervised Training.">
+    <meta name="description" content="ScalingEdit：Scaling 3D Object Editing with Scene-Aligned Self-Supervision">
     <meta name="theme-color" content="#101010">
-    <title>ScalingEdit · Project Page</title>
+    <title>ScalingEdit：Scaling 3D Object Editing with Scene-Aligned Self-Supervision</title>
     <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%23101010'/%3E%3Cpath d='M14 32h36M32 14v36' stroke='%23f26b38' stroke-width='7' stroke-linecap='round'/%3E%3Ccircle cx='32' cy='32' r='8' fill='%23f3f1eb'/%3E%3C/svg%3E">
     <style>
 :root {
@@ -933,7 +933,7 @@ h3 { font-size: clamp(1.45rem, 2.3vw, 2rem); }
               <span class="hero-title-stage" aria-hidden="true"></span>
             </h1>
             <div class="hero-support hero-detail">
-              <p class="hero-paper-title">Scaling Real-World 3D Object Editing with Self-Supervised Training</p>
+              <p class="hero-paper-title">Scaling 3D Object Editing with Scene-Aligned Self-Supervision</p>
             </div>
           </div>
           <div class="hero-scroll-cue" aria-hidden="true">
@@ -1068,10 +1068,6 @@ const displayTitle = siteConfig.projectTitle.trim() || fallbackTitle;
 document.querySelectorAll("[data-project-title]").forEach((element) => {
   element.textContent = displayTitle;
 });
-
-if (siteConfig.projectTitle.trim()) {
-  document.title = `${siteConfig.projectTitle} · Project Page`;
-}
 
 const heroScroll = document.querySelector("#hero-scroll");
 const hero = document.querySelector(".hero");
