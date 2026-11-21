@@ -38,7 +38,16 @@ def main() -> None:
         '<script id="project-video-data" type="application/octet-stream">'
         f'{video_payload}</script>\n    '
     )
-    if 'id="project-video-data"' not in html:
+    if 'id="project-video-data"' in html:
+        html, count = re.subn(
+            r'<script id="project-video-data"[^>]*>[^<]*</script>',
+            data_block.rstrip(),
+            html,
+            count=1,
+        )
+        if count != 1:
+            raise SystemExit("Expected embedded video data block was not found")
+    else:
         anchor = "<script>\nconst embeddedImages ="
         if anchor not in html:
             raise SystemExit("Main script anchor was not found")
